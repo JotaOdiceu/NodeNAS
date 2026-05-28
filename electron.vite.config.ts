@@ -1,13 +1,16 @@
 import { resolve } from 'path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { readFileSync } from 'fs'
+import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
+
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    build: { externalizeDeps: true }
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    build: { externalizeDeps: true }
   },
   renderer: {
     define: {

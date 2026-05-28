@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare const __APP_VERSION__: string
+
 export interface BackupJob {
   id: number
   timestamp: string

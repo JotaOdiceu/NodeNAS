@@ -41,7 +41,7 @@ export default function App() {
         </div>
 
         <div className="px-6 py-4 border-t border-[#263547]">
-          <p className="text-gray-600 text-xs">v1.0.0</p>
+          <p className="text-gray-600 text-xs">v{__APP_VERSION__}</p>
         </div>
       </nav>
 

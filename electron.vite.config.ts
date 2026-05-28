@@ -10,6 +10,9 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()]
   },
   renderer: {
+    define: {
+      __APP_VERSION__: JSON.stringify(version)
+    },
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src')

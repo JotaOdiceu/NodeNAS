@@ -43,12 +43,11 @@ export class SMBShareService {
       throw new Error(`O diretório não existe: "${path}". Crie-o antes de compartilhar.`)
     }
 
-    // Remove stale share with same name if present
-    try { await this.runPS(`Remove-SmbShare -Name '${SHARE_NAME}' -Force -ErrorAction SilentlyContinue`) } catch {}
-
     const safePath = path.replace(/'/g, "''")
-    // Resolve SID S-1-1-0 (Everyone/Todos) to the locale-specific group name at runtime
+    // Remove existing share and create new one in a single elevated context so that
+    // Remove-SmbShare and New-SmbShare always run with the same privilege level.
     await this.runPS(
+      `Remove-SmbShare -Name '${SHARE_NAME}' -Force -ErrorAction SilentlyContinue\n` +
       `$everyone = ([System.Security.Principal.SecurityIdentifier]'S-1-1-0').Translate([System.Security.Principal.NTAccount]).Value\n` +
       `New-SmbShare -Name '${SHARE_NAME}' -Path '${safePath}' -FullAccess $everyone -ErrorAction Stop`
     )
@@ -61,7 +60,11 @@ export class SMBShareService {
   }
 
   async disable(): Promise<SMBShareStatus> {
-    await this.runPS(`Remove-SmbShare -Name '${SHARE_NAME}' -Force -ErrorAction SilentlyContinue`)
+    await this.runPS(
+      `if (Get-SmbShare -Name '${SHARE_NAME}' -ErrorAction SilentlyContinue) {\n` +
+      `  Remove-SmbShare -Name '${SHARE_NAME}' -Force -ErrorAction Stop\n` +
+      `}`
+    )
     return { active: false, shareName: SHARE_NAME, path: null, uncPath: null }
   }
 
